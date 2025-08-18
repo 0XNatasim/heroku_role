@@ -4,65 +4,61 @@ window.onload = () => {
 
   connectBtn.onclick = async () => {
     try {
+      statusEl.textContent = "";
+
       if (!window.ethereum) {
-        statusEl.innerText = "MetaMask not found.";
+        statusEl.textContent = "MetaMask not found. Please install it.";
         return;
       }
 
-      const ensName = document.getElementById("ensInput").value.trim();
+      // Read ENS name
+      const ensName = document.getElementById("ensInput").value.trim().toLowerCase();
       if (!ensName) {
-        statusEl.innerText = "Please enter your ENS subdomain.";
+        statusEl.textContent = "Please enter your ENS subdomain.";
         return;
       }
       if (!ensName.endsWith(".emperor.club.agi.eth")) {
-        statusEl.innerText = "ENS must be a subdomain of emperor.club.agi.eth";
+        statusEl.textContent = "ENS must be a subdomain of emperor.club.agi.eth";
         return;
       }
-
-      // Request wallet
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const wallet = await signer.getAddress();
 
       // Get discordId from query string
       const urlParams = new URLSearchParams(window.location.search);
       const discordId = urlParams.get("discordId");
-
       if (!discordId) {
-        statusEl.innerText = "Discord ID missing in URL.";
+        statusEl.textContent = "Discord ID missing in URL (?discordId=...)";
         return;
       }
 
-      // Derive subnode hash (labelhash of the first part of ENS)
-      const labels = ensName.split(".");
-      const subname = labels[0];
-      const subnodeHex = ethers.keccak256(ethers.toUtf8Bytes(subname));
+      // Connect wallet
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      const signer = await provider.getSigner();
+      const wallet = (await signer.getAddress()).toLowerCase();
 
-      // Sign verification message
+      // --- NameWrapper token ID is the namehash of the FULL name ---
+      const tokenId = ethers.namehash(ensName);
+
+      // Sign a deterministic message (ties wallet ↔ discordId)
       const message = `Verify ENS subdomain for ${discordId}`;
       const signature = await signer.signMessage(message);
 
-      // Send verification request
+      // Call serverless verify endpoint
       const resp = await fetch("/api/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          discordId,
-          wallet,
-          subnodeHex,
-          signature
-        })
+        body: JSON.stringify({ discordId, wallet, tokenId, signature, ensName })
       });
 
       const data = await resp.json();
-      if (data.success) {
-        statusEl.innerText = "✅ Verified! Role granted in Discord.";
+      if (resp.ok && data?.success) {
+        statusEl.textContent = "✅ Verified! Role granted in Discord.";
       } else {
-        statusEl.innerText = "❌ Verification failed: " + data.error;
+        statusEl.textContent = "❌ Verification failed: " + (data?.error || resp.statusText);
       }
     } catch (err) {
       console.error(err);
-      statusEl.innerText = "Error during verification.";
+      statusEl.textContent = "Error during verification.";
     }
   };
 };

@@ -3,15 +3,38 @@
 <head>
   <meta charset="UTF-8" />
   <title>ENS Verification</title>
-  <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.umd.min.js"></script>
-  <script src="verify.js"></script>
+  <!-- Pin ethers v6 UMD -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.1/dist/ethers.umd.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; padding: 24px; max-width: 700px; margin: auto; }
+    input { padding: 10px; width: 100%; max-width: 420px; }
+    button { padding: 10px 16px; cursor: pointer; }
+    .muted { color: #666; }
+    .box { border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-top: 12px; }
+  </style>
 </head>
 <body>
   <h1>ENS Subdomain Verification</h1>
-  <p>Enter your ENS subdomain (under <b>emperor.club.agi.eth</b>):</p>
-  <input id="ensInput" type="text" placeholder="e.g. natasim.emperor.club.agi.eth" style="width:300px"/>
-  <br/><br/>
-  <button id="connectBtn">Connect Wallet & Verify</button>
-  <p id="status"></p>
+  <p class="muted">You must own a subdomain under <b>emperor.club.agi.eth</b>.</p>
+
+  <div class="box">
+    <label for="ensInput"><b>Your ENS subdomain</b> (e.g. <i>natasim.emperor.club.agi.eth</i>)</label><br/>
+    <input id="ensInput" type="text" placeholder="natasim.emperor.club.agi.eth" />
+    <br/><br/>
+    <button id="connectBtn">Connect Wallet & Verify</button>
+    <p id="status" class="muted"></p>
+  </div>
+
+  <details class="box">
+    <summary><b>How to get your Discord ID</b></summary>
+    <ol>
+      <li>Discord → Settings → Advanced → enable <i>Developer Mode</i>.</li>
+      <li>Right-click your username → <i>Copy ID</i>.</li>
+      <li>Open the link you were given, it should include <code>?discordId=&lt;that number&gt;</code>.</li>
+    </ol>
+  </details>
+
+  <script src="/verify.js"></script>
 </body>
 </html>
