@@ -18,7 +18,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
   );
 
   await interaction.reply({
-    content: 'Click the button to verify with MetaMask.',
+    content: 'You are in the Club ? Prove it !',
     components: [row],
     flags: 64 // ephemeral
   });
