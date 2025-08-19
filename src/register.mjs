@@ -1,4 +1,3 @@
-// register.mjs  (run locally: node register.mjs)
 import 'dotenv/config';
 import { REST, Routes, SlashCommandBuilder } from 'discord.js';
 

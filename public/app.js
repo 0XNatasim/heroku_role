@@ -3,10 +3,10 @@
   const $status = document.getElementById('status');
 
   const qs = new URLSearchParams(window.location.search);
-  const uid = qs.get('uid');
-  const guild = qs.get('guild');
+  const uid = qs.get('uid');    // Discord user id
+  const guild = qs.get('guild'); // Discord guild id
 
-  function log(msg, cls = '') {
+  function log(msg, cls='') {
     const div = document.createElement('div');
     if (cls) div.className = cls;
     div.textContent = msg;
@@ -14,7 +14,7 @@
   }
 
   async function getNonce() {
-    const r = await fetch('/api/nonce');
+    const r = await fetch('/nonce');
     if (!r.ok) throw new Error('Nonce fetch failed');
     const j = await r.json();
     return j.nonce;
@@ -41,23 +41,23 @@
       $status.innerHTML = '';
       if (!uid || !guild) throw new Error('Missing uid/guild. Open this page from /verify in Discord.');
 
-      log('Connecting MetaMask...');
+      log('Connecting MetaMask…');
       const address = await requestAccounts();
       log(`Connected: ${address}`);
 
-      log('Fetching nonce...');
+      log('Fetching nonce…');
       const nonce = await getNonce();
       log(`Nonce: ${nonce}`);
 
       const message = buildMessage(address, nonce);
-      log('Signing message...');
+      log('Signing message…');
       const signature = await window.ethereum.request({
         method: 'personal_sign',
         params: [message, address]
       });
 
-      log('Verifying on server...');
-      const r = await fetch('/api/verify', {
+      log('Verifying on server…');
+      const r = await fetch('/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message, signature, uid, guild })
@@ -65,7 +65,10 @@
       const j = await r.json();
 
       if (j.ok) {
-        log(`Success! Matched ${j.matched} subdomain(s). Role granted.`, 'ok');
+        const names = Array.isArray(j.sample) && j.sample.length
+          ? j.sample.join(', ')
+          : '';
+        log(`Success! Found ${j.matched} matching (${names})  Role OG & Club Member granted.`, 'ok');
       } else {
         log(`No match. ${j.error || 'You do not own a required subdomain.'}`, 'err');
         if (Array.isArray(j.sample) && j.sample.length) {
