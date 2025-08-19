@@ -1,29 +1,20 @@
-# Discord ENS Subdomain Verifier (Free hosting on Vercel)
+# Discord ENS Wrapped Subname Verification
 
-Static site + serverless function to verify ownership of an ENS subdomain (under `emperor.club.agi.eth`) and assign a Discord role.
+Gives a Discord role **only if** a user owns an **ERC-1155 wrapped ENS subname** under a specific parent (e.g. `.emperor.club.agi.eth`).
 
-## How it works
-1. User opens `/` with `?discordId=<their Discord user id>`.
-2. Frontend connects MetaMask, computes `tokenId = namehash(full ENS)`, asks user to sign `Verify ENS subdomain for <discordId>`.
-3. Serverless API `/api/verify`:
-   - Verifies signature with `ethers.verifyMessage`.
-   - Calls NameWrapper `balanceOf(wallet, tokenId)` on mainnet via Alchemy RPC.
-   - Calls Discord REST `PUT /guilds/{guild}/members/{user}/roles/{role}` to grant role.
+## Architecture
 
-## Deploy on Vercel
-1. Push this repo to GitHub, import into Vercel (Hobby/free).
-2. Add **Environment Variables** in the Vercel Project → Settings:
-   - `DISCORD_TOKEN` = your bot token
-   - `GUILD_ID` = your Discord server ID
-   - `MEMBER_ROLE_ID` = the role to grant
-   - `ALCHEMY_KEY` = your Alchemy mainnet key
-   - `ENS_WRAPPER_NFT_CONTRACT` = ENS NameWrapper (e.g. `0xD4416b13d2b3a9aBae7AcD5D6C2BbDBE25686401`)
-3. Deploy. Your site will be live at `https://<app>.vercel.app/`.
+- **Web Service (server.mjs)**: Serves `/verify` page, issues nonce, verifies signature, checks Alchemy for NameWrapper holdings, calls Discord REST to assign role.
+- **Worker (bot.mjs)**: Discord bot that exposes `/verify` and replies with the link to the web page.
 
 ## Requirements
-- The bot must already be in your guild and have **Manage Roles**.
-- The bot’s role must be **above** the `MEMBER_ROLE_ID` in the role hierarchy.
-- Users need their **Discord ID** (enable Developer Mode → right-click user → Copy ID).
 
-## Local dev (optional)
-This project is static + serverless; use `vercel dev` if you want to test locally.
+- Node.js v20+
+- Discord bot with `Manage Roles` permission
+- Set the bot's role **above** the target `MEMBER_ROLE_ID` in the guild hierarchy
+- Alchemy API key (Mainnet)
+
+## Env Vars
+
+Copy `.env.example` to `.env` (do **not** commit `.env`):
+

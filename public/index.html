@@ -1,40 +1,27 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>ENS Verification</title>
-  <!-- Pin ethers v6 UMD -->
-  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.1/dist/ethers.umd.min.js"></script>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; padding: 24px; max-width: 700px; margin: auto; }
-    input { padding: 10px; width: 100%; max-width: 420px; }
-    button { padding: 10px 16px; cursor: pointer; }
-    .muted { color: #666; }
-    .box { border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-top: 12px; }
-  </style>
-</head>
-<body>
-  <h1>ENS Subdomain Verification</h1>
-  <p class="muted">You must own a subdomain under <b>emperor.club.agi.eth</b>.</p>
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>ENS Subdomain Verification</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+      body { font-family: system-ui, Arial, sans-serif; max-width: 620px; margin: 40px auto; padding: 0 16px; }
+      .card { border: 1px solid #ddd; border-radius: 12px; padding: 20px; }
+      button { padding: 12px 16px; border-radius: 10px; border: 1px solid #ccc; cursor: pointer; }
+      .log { white-space: pre-wrap; background: #f9f9f9; padding: 12px; border-radius: 8px; margin-top: 12px; font-size: 14px; }
+      .ok { color: green; }
+      .err { color: #b00020; }
+    </style>
+  </head>
+  <body>
+    <h1>Verify Ownership: emperor.club.agi.eth Subdomain</h1>
+    <p>Connect MetaMask and sign a message to prove wallet ownership. We’ll check if you own any wrapped ENS subdomain under <code>emperor.club.agi.eth</code>.</p>
 
-  <div class="box">
-    <label for="ensInput"><b>Your ENS subdomain</b> (e.g. <i>natasim.emperor.club.agi.eth</i>)</label><br/>
-    <input id="ensInput" type="text" placeholder="natasim.emperor.club.agi.eth" />
-    <br/><br/>
-    <button id="connectBtn">Connect Wallet & Verify</button>
-    <p id="status" class="muted"></p>
-  </div>
+    <div class="card">
+      <button id="connect">Connect & Verify</button>
+      <div id="status" class="log"></div>
+    </div>
 
-  <details class="box">
-    <summary><b>How to get your Discord ID</b></summary>
-    <ol>
-      <li>Discord → Settings → Advanced → enable <i>Developer Mode</i>.</li>
-      <li>Right-click your username → <i>Copy ID</i>.</li>
-      <li>Open the link you were given, it should include <code>?discordId=&lt;that number&gt;</code>.</li>
-    </ol>
-  </details>
-
-  <script src="/verify.js"></script>
-</body>
+    <script src="./app.js"></script>
+  </body>
 </html>

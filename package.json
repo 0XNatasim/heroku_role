@@ -1,12 +1,22 @@
 {
-  "name": "discord-ens-verifier",
+  "name": "discord-ens-verify",
   "version": "1.0.0",
-  "private": true,
   "type": "module",
-  "scripts": { "build": "", "start": "" },
-  "dependencies": {
-    "ethers": "^6.13.1",
-    "tweetnacl": "^1.0.3"
+  "scripts": {
+    "dev": "concurrently \"node src/bot.mjs\" \"node src/server.mjs\"",
+    "bot": "node src/bot.mjs",
+    "server": "node src/server.mjs",
+    "register": "node src/bot.mjs --register"
   },
-  "engines": { "node": ">=18" }
+  "dependencies": {
+    "cors": "^2.8.5",
+    "discord.js": "^14.15.3",
+    "dotenv": "^16.4.5",
+    "ethers": "^6.13.2",
+    "express": "^4.19.2",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
 }
