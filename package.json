@@ -1,22 +1,14 @@
 {
-  "name": "discord-ens-verify",
+  "name": "vercel-ens-verify",
   "version": "1.0.0",
   "type": "module",
-  "scripts": {
-    "dev": "concurrently \"node src/bot.mjs\" \"node src/server.mjs\"",
-    "bot": "node src/bot.mjs",
-    "server": "node src/server.mjs",
-    "register": "node src/bot.mjs --register"
-  },
+  "private": true,
   "dependencies": {
-    "cors": "^2.8.5",
-    "discord.js": "^14.15.3",
-    "dotenv": "^16.4.5",
+    "tweetnacl": "^1.0.3",
     "ethers": "^6.13.2",
-    "express": "^4.19.2",
-    "node-fetch": "^3.3.2"
+    "undici": "^6.19.8"
   },
-  "devDependencies": {
-    "concurrently": "^8.2.2"
+  "scripts": {
+    "register": "node register.mjs"
   }
 }

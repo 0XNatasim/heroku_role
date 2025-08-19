@@ -3,8 +3,8 @@
   const $status = document.getElementById('status');
 
   const qs = new URLSearchParams(window.location.search);
-  const uid = qs.get('uid');   // Discord user id
-  const guild = qs.get('guild'); // Guild id
+  const uid = qs.get('uid');
+  const guild = qs.get('guild');
 
   function log(msg, cls = '') {
     const div = document.createElement('div');
@@ -14,18 +14,18 @@
   }
 
   async function getNonce() {
-    const r = await fetch('/nonce');
+    const r = await fetch('/api/nonce');
+    if (!r.ok) throw new Error('Nonce fetch failed');
     const j = await r.json();
     return j.nonce;
   }
 
   function buildMessage(addr, nonce) {
-    // Minimal signed message (non-SIWE for simplicity)
     return [
       'ENS Club Verification',
       'I authorize linking my Discord account to my wallet.',
       `Wallet: ${addr}`,
-      `Nonce: ${nonce}` // 32 hex chars
+      `Nonce: ${nonce}`
     ].join('\n');
   }
 
@@ -39,9 +39,7 @@
   $btn.addEventListener('click', async () => {
     try {
       $status.innerHTML = '';
-      if (!uid || !guild) {
-        throw new Error('Missing uid/guild. Please open this page from the /verify button in Discord.');
-      }
+      if (!uid || !guild) throw new Error('Missing uid/guild. Open this page from /verify in Discord.');
 
       log('Connecting MetaMask...');
       const address = await requestAccounts();
@@ -53,14 +51,13 @@
 
       const message = buildMessage(address, nonce);
       log('Signing message...');
-
       const signature = await window.ethereum.request({
         method: 'personal_sign',
         params: [message, address]
       });
 
       log('Verifying on server...');
-      const r = await fetch('/verify', {
+      const r = await fetch('/api/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message, signature, uid, guild })
@@ -72,7 +69,7 @@
       } else {
         log(`No match. ${j.error || 'You do not own a required subdomain.'}`, 'err');
         if (Array.isArray(j.sample) && j.sample.length) {
-          log(`Found (non-matching sample): ${j.sample.join(', ')}`);
+          log(`Found (sample): ${j.sample.join(', ')}`);
         }
       }
     } catch (err) {
