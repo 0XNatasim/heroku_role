@@ -9,7 +9,8 @@ import { fileURLToPath } from 'url';
 const {
   PORT = 5000,
   DISCORD_TOKEN,
-  MEMBER_ROLE_ID,
+  MEMBER_ROLE_ID,          // OG role
+  SECOND_ROLE_ID,          // Club Member role
   ALCHEMY_KEY,
   NAMEWRAPPER_CONTRACT,
   PARENT_SUFFIX = '.emperor.club.agi.eth'
@@ -22,15 +23,17 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// serve /public
+// Serve static
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
-// simple in-memory nonce store (5 min TTL)
+// In-memory nonce store (5 min TTL)
 const nonces = new Map();
-const newNonce = () => [...crypto.getRandomValues(new Uint8Array(16))]
-  .map(b => b.toString(16).padStart(2, '0')).join('');
+const newNonce = () =>
+  [...crypto.getRandomValues(new Uint8Array(16))]
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
 
-// helpers
+// Helpers
 const endsWithParent = (name) =>
   typeof name === 'string' && name.toLowerCase().endsWith(PARENT_SUFFIX.toLowerCase());
 
@@ -71,7 +74,7 @@ async function addRoleToUser(guildId, userId, roleId) {
   if (!r.ok) throw new Error(`Role add failed: ${r.status} ${await r.text()}`);
 }
 
-// routes
+// Routes
 app.get('/nonce', (req, res) => {
   const nonce = newNonce();
   nonces.set(nonce, Date.now());
@@ -85,7 +88,7 @@ app.post('/verify', async (req, res) => {
       return res.status(400).json({ ok: false, error: 'Missing fields' });
     }
 
-    // check nonce
+    // Nonce validation
     const m = /Nonce:\s*([a-f0-9]{32})/i.exec(message);
     if (!m) return res.status(400).json({ ok: false, error: 'Nonce missing' });
     const nonce = m[1];
@@ -96,23 +99,35 @@ app.post('/verify', async (req, res) => {
     }
     nonces.delete(nonce);
 
-    // recover wallet from signature
+    // Recover wallet from signature
     const address = ethers.getAddress(ethers.verifyMessage(message, signature));
 
-    // check NameWrapper holdings
+    // Ownership check on NameWrapper via Alchemy
     const nfts = await getWrapperNftsForOwner(address);
     const matches = nfts.filter(n => endsWithParent(getNftName(n)));
-
     if (matches.length === 0) {
-      return res.json({ ok: false, address, matched: 0, sample: nfts.slice(0, 5).map(getNftName).filter(Boolean) });
+      return res.json({
+        ok: false,
+        address,
+        matched: 0,
+        sample: nfts.slice(0, 5).map(getNftName).filter(Boolean)
+      });
     }
 
-    // grant role
+    // Grant BOTH roles
     await addRoleToUser(guild, uid, MEMBER_ROLE_ID);
+    if (SECOND_ROLE_ID) await addRoleToUser(guild, uid, SECOND_ROLE_ID);
 
-    // return ALL matching names so the UI can list them comma-separated
+    // Names to display
     const allNames = matches.map(getNftName).filter(Boolean);
-    res.json({ ok: true, address, matched: matches.length, sample: allNames });
+
+    return res.json({
+      ok: true,
+      address,
+      matched: matches.length,
+      sample: allNames,
+      note: 'Roles OG & Club Member granted'
+    });
   } catch (e) {
     console.error('verify error:', e);
     res.status(500).json({ ok: false, error: String(e?.message || e) });

@@ -2,11 +2,10 @@
   "name": "ens-verify-local",
   "version": "1.0.0",
   "type": "module",
-
   "scripts": {
     "start": "concurrently -k \"node src/server.mjs\" \"node src/bot.mjs\"",
-    "register": "node src/register.mjs",
     "dev": "concurrently \"node src/bot.mjs\" \"node src/server.mjs\"",
+    "register": "node src/register.mjs",
     "bot": "node src/bot.mjs",
     "server": "node src/server.mjs"
   },

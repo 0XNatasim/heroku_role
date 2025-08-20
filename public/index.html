@@ -14,12 +14,21 @@
     </style>
   </head>
   <body>
-    <h1><code>Verify ownership of the </code>Emperor.Club</h1>
+    <h1>Verify ownership of <code>Emperor.Club</code></h1>
     <p>Click to connect MetaMask and sign a message. We’ll check if you you are doing this for nothing ...</p>
+
     <div class="card">
       <button id="connect">Connect & Verify</button>
+      <div id="mm-help" style="display:none; margin-top:12px;">
+        <p><b>No wallet detected.</b> On mobile, open this page inside the MetaMask app:</p>
+        <button id="open-in-metamask">Open in MetaMask</button>
+        <p style="font-size:13px;opacity:.8;margin-top:8px;">
+          Tip: If this opened in Discord or your mobile browser, tap the button above.
+        </p>
+      </div>
       <div id="status" class="log"></div>
     </div>
+
     <script src="./app.js"></script>
   </body>
 </html>
