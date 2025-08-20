@@ -84,7 +84,7 @@
 
       if (j.ok) {
         const names = Array.isArray(j.sample) && j.sample.length ? j.sample.join(', ') : '';
-        log(`Success! Found ${j.matched} matching (${names})  Roles OG & Club Member granted.`, 'ok');
+        log(`Success! Found ${j.matched} matching (${names})  Roles "Club Member" granted.`, 'ok');
       } else {
         log(`No match. ${j.error || 'You do not own a required subdomain.'}`, 'err');
         if (Array.isArray(j.sample) && j.sample.length) {
